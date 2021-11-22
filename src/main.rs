@@ -75,7 +75,7 @@ async fn dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
                 .unwrap();
         }
         DispatchError::LackingPermissions(p) => {
-            let mut base = String::from("You need the follwing permisison\n");
+            let mut base = String::from("You need the following permisison\n");
             let _p_vec = p
                 .get_permission_names()
                 .iter()
@@ -89,7 +89,7 @@ async fn dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
         }
         DispatchError::OnlyForOwners => {
             msg.channel_id
-                .say(&ctx.http, "You don't have milk. bye, looser")
+                .say(&ctx.http, "You don't have milk. Bye, looser")
                 .await
                 .unwrap();
         }
@@ -133,7 +133,7 @@ struct Fun;
 struct Owners;
 
 #[help]
-#[individual_command_tip = "If you would like to get more information about a specific command or group, you can just pass it as a command argument; like so: `help botinfo`"]
+#[individual_command_tip = "If you would like to get more information about a specific command or group, you can just pass it as a command argument, like so: `help botinfo`"]
 #[strikethrough_commands_tip_in_guild = ""]
 #[max_levenshtein_distance(3)]
 #[indention_prefix = "+"]
