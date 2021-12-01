@@ -1,9 +1,10 @@
 mod commands;
+mod utils;
 
 use std::{collections::HashSet, env, sync::Arc};
 use sentry;
 
-use commands::{meta::*, owner::*, moderation::*, fun::*};
+use commands::{meta::*, owner::*, moderation::*, fun::*, astrodolph::*};
 use serenity::{
     async_trait,
     client::bridge::gateway::ShardManager,
@@ -17,9 +18,18 @@ use serenity::framework::standard::{Args, CommandGroup, CommandResult, DispatchE
 use serenity::model::channel::Message;
 use serenity::model::id::UserId;
 use serenity::utils::Colour;
+use sqlx::PgPool;
 use tracing::{error, info};
 
+use utils::database::*;
+
 pub struct ShardManagerContainer;
+pub struct DatabasePool;
+
+impl TypeMapKey for DatabasePool {
+    type Value = PgPool;
+}
+
 
 impl TypeMapKey for ShardManagerContainer {
     type Value = Arc<Mutex<ShardManager>>;
@@ -128,6 +138,12 @@ struct Moderation;
 struct Fun;
 
 #[group]
+#[description("Astrodolph game commands")]
+#[commands(ustats, unew, upgrhp, upgrstrong)]
+#[prefix = "asd"]
+struct Astrodolph;
+
+#[group]
 #[description("Owner's Commands")]
 #[commands(quit)]
 struct Owners;
@@ -179,7 +195,7 @@ async fn main() {
     };
 
     let framework =
-        StandardFramework::new().configure(|c| c.owners(owners).prefix("~")).help(&MY_HELP).on_dispatch_error(dispatch_error).group(&META_GROUP).group(&OWNERS_GROUP).group(&MODERATION_GROUP).group(&FUN_GROUP);
+        StandardFramework::new().configure(|c| c.owners(owners).prefix("~")).help(&MY_HELP).on_dispatch_error(dispatch_error).group(&META_GROUP).group(&OWNERS_GROUP).group(&MODERATION_GROUP).group(&FUN_GROUP).group(&ASTRODOLPH_GROUP);
 
     let mut client = Client::builder(&token)
         .framework(framework)
@@ -189,8 +205,13 @@ async fn main() {
         .expect("Err creating client");
 
     {
+        // Add the databases connection pools to the data.
+        let pg_pool = obtain_postgres_pool().await.unwrap();
+
         let mut data = client.data.write().await;
+
         data.insert::<ShardManagerContainer>(client.shard_manager.clone());
+        data.insert::<DatabasePool>(pg_pool.clone());
     }
 
     let shard_manager = client.shard_manager.clone();

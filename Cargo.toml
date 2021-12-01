@@ -23,3 +23,10 @@ features = ["cache", "framework", "standard_framework", "rustls_backend"]
 version = "0.22.0"
 default-features = false
 features = ["backtrace", "contexts", "panic", "reqwest", "rustls"]
+
+[dependencies.sqlx]
+version = "0.5"
+#git = "https://github.com/launchbadge/sqlx/"
+#branch = "master"
+default-features = false
+features = ["macros", "postgres", "uuid", "offline", "chrono", "runtime-tokio-rustls"]
